@@ -5,13 +5,13 @@ import ic_back from './ic_back.svg';
 import ic_forward from './ic_forward.svg';
 
 const config = {
-    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    month_subs: ['Jan', 'Feb', 'Apr', 'Mar', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
-    weeks: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    week_subs: ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'],
-    today: function() {
-      return new Date();
-    }
+  months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  month_subs: ['Jan', 'Feb', 'Apr', 'Mar', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+  weeks: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  week_subs: ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'],
+  today: function () {
+    return new Date();
+  }
 }
 const TODAY = config.today();
 
@@ -30,6 +30,16 @@ class Calendar extends Component {
     this.updateMonth(0);
   }
 
+  updateYear(add) {
+    var d = this.state.current;
+    d.setYear(d.getFullYear() + add);
+    var eom = new Date(d.getYear(), d.getMonth() + 1, 0).getDate();
+    this.setState({
+      current: d,
+      ldom: eom
+    });
+  }
+
   updateMonth(add) {
     var d = this.state.current;
     d.setMonth(d.getMonth() + add);
@@ -40,13 +50,21 @@ class Calendar extends Component {
     });
   }
 
-  prev() {
-    this.updateMonth(-1);
-  }
+  prevYear = () => {
+    this.updateYear(-1);
+  };
 
-  next() {
+  nextYear = () => {
+    this.updateYear(1);
+  };
+
+  prev = () => {
+    this.updateMonth(-1);
+  };
+
+  next = () => {
     this.updateMonth(1);
-  }
+  };
 
   _onDatePicked(month, day) {
     var d = new Date(this.state.current.getTime());
@@ -58,24 +76,24 @@ class Calendar extends Component {
     });
   }
 
-  renderDay(opts={}) {
+  renderDay(opts = {}) {
     var baseClasses = "day noselect";
     var today = "";
     var todayStyle = {};
     var containerStyle = {};
-    if( opts.today ) {
+    if (opts.today) {
       today = "current";
       todayStyle = {
-        borderColor: this.props.accentColor,
+        borderColor: `${this.props.accentColor} !important`,
       };
     }
 
     var selected = "";
     var selectedStyle = {};
-    if( opts.selected ) {
+    if (opts.selected) {
       selected = "selected";
       selectedStyle = {
-        backgroundColor: this.props.accentColor
+        backgroundColor: `${this.props.accentColor} !important`
       }
       containerStyle = {
         color: '#ffffff'
@@ -84,15 +102,19 @@ class Calendar extends Component {
 
     baseClasses += opts.current ? "" : " non-current";
 
-    return (<div className={baseClasses}
-                style={containerStyle}>
-              <div className={today} style={todayStyle}></div>
-              <div className={selected} style={selectedStyle}></div>
-              <p onClick={ (ev) => {
-                var day = ev.target.innerHTML;
-                this._onDatePicked(opts.month, day);
-              }}>{opts.date.getDate()}</p>
-            </div>);
+    return (
+      <div className={baseClasses} style={containerStyle}>
+        <div className={today} style={todayStyle}></div>
+        <div className={selected} style={selectedStyle}></div>
+        <div className='day'
+          onClick={(ev) => {
+            var day = ev.target.innerHTML;
+            this._onDatePicked(opts.month, day);
+          }}>
+          {opts.date.getDate()}
+        </div>
+      </div>
+    );
   }
 
   renderDays(copy) {
@@ -125,12 +147,12 @@ class Calendar extends Component {
 
       var sel = new Date(this.state.selected.getTime());
       var isSelected = (sel.getFullYear() === copy.getFullYear() &&
-          sel.getDate() === copy.getDate() &&
-          sel.getMonth() === copy.getMonth());
+        sel.getDate() === copy.getDate() &&
+        sel.getMonth() === copy.getMonth());
 
       var isToday = (TODAY.getFullYear() === copy.getFullYear() &&
-          TODAY.getDate() === copy.getDate() &&
-          TODAY.getMonth() === copy.getMonth());
+        TODAY.getDate() === copy.getDate() &&
+        TODAY.getMonth() === copy.getMonth());
 
       days.push(this.renderDay({
         today: isToday,
@@ -149,8 +171,8 @@ class Calendar extends Component {
 
     for (var i = 0; i < config.week_subs.length; i++) {
       header.push(<p className='day-headers noselect'>
-                    {config.week_subs[i]}
-                  </p>);
+        {config.week_subs[i]}
+      </p>);
     }
 
     return header;
@@ -168,15 +190,17 @@ class Calendar extends Component {
 
     var tMonth = config.months[this.state.selected.getMonth()];
     var tDate = this.state.selected.getDate();
+    var tYear = this.state.selected.getFullYear();
     var month = config.months[this.state.current.getMonth()];
     var year = this.state.current.getFullYear();
-    var date = this.state.current.getDate();
+    // var date = this.state.current.getDate();
 
     var upperDate = null;
-    if( this.props.showHeader ) {
+    if (this.props.showHeader) {
       upperDate = (<div className='flex-2 header center' style={{
-          backgroundColor: this.props.accentColor
-        }}>
+        backgroundColor: this.props.accentColor
+      }}>
+        <p className="header-month">{tYear}</p>
         <p className="header-month">{tMonth.toUpperCase()}</p>
         <p className="header-day">{tDate}</p>
       </div>);
@@ -184,12 +208,15 @@ class Calendar extends Component {
     return (<div className={this.props.orientation}>
       {upperDate}
       <div className="padding">
+        <div className='year'>
+          <img className="year-arrow-left" src={ic_back} alt="back" onClick={this.prevYear}></img>
+          <p className="year-title">{year}</p>
+          <img className="year-arrow-right" src={ic_forward} alt="forward" onClick={this.nextYear}></img>
+        </div>
         <div className='month'>
-          <img className="month-arrow-left" src={ic_back} alt="back" onClick={this.prev.bind(this)}></img>
-          <p className="month-title">{month}<br/>
-          <span className="month-year">{year}</span>
-          </p>
-          <img className="month-arrow-right" src={ic_forward} alt="forward" onClick={this.next.bind(this)}></img>
+          <img className="month-arrow-left" src={ic_back} alt="back" onClick={this.prev}></img>
+          <p className="month-title">{month}</p>
+          <img className="month-arrow-right" src={ic_forward} alt="forward" onClick={this.next}></img>
         </div>
         <div className='footer'>
           {header}
@@ -210,7 +237,7 @@ Calendar.propTypes = {
 
 Calendar.defaultProps = {
   accentColor: '#00C1A6',
-  onDatePicked: function(){},
+  onDatePicked: function () { },
   showHeader: true,
   orientation: 'flex-col'
 };
