@@ -17,15 +17,27 @@ class Calendar extends Component {
 
   constructor(props) {
     super(props);
+
+    const currentDate = props.value ? new Date(props.value) : config.today();
     this.state = {
-      current: props.value || config.today(),
-      selected: props.value || config.today(),
+      current: currentDate,
+      selected: currentDate,
       ldom: 30
     };
   }
 
   componentWillMount() {
     this.updateMonth(0);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { value } = this.props;
+    if (value && prevProps.value !== value) {
+      this.setState({
+        current: new Date(value),
+        selected: new Date(value),
+      });
+    }
   }
 
   updateYear(add) {
@@ -239,7 +251,7 @@ Calendar.defaultProps = {
   onDatePicked: function () { },
   showHeader: true,
   orientation: 'flex-col',
-  value: null,
+  value: undefined,
 };
 
 export default Calendar;
