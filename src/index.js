@@ -9,9 +9,7 @@ const config = {
   month_subs: ['Jan', 'Feb', 'Apr', 'Mar', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
   weeks: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   week_subs: ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'],
-  today: function () {
-    return new Date();
-  }
+  today: () => new Date(),
 }
 const TODAY = config.today();
 
@@ -20,8 +18,8 @@ class Calendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      current: config.today(),
-      selected: config.today(),
+      current: props.value || config.today(),
+      selected: props.value || config.today(),
       ldom: 30
     };
   }
@@ -233,13 +231,15 @@ Calendar.propTypes = {
   onDatePicked: PropTypes.func,
   showHeader: PropTypes.bool,
   orientation: PropTypes.string,
+  value: PropTypes.any,
 };
 
 Calendar.defaultProps = {
   accentColor: '#00C1A6',
   onDatePicked: function () { },
   showHeader: true,
-  orientation: 'flex-col'
+  orientation: 'flex-col',
+  value: null,
 };
 
 export default Calendar;
